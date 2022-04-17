@@ -31,6 +31,7 @@ type Handler interface {
 	OnMessage(context *TurnContext) (schema.Activity, error)
 	OnInvoke(context *TurnContext) (schema.Activity, error)
 	OnConversationUpdate(context *TurnContext) (schema.Activity, error)
+	OnInstallationUpdate(context *TurnContext) (schema.Activity, error)
 }
 
 // HandlerFuncs is an adaptor to let client program specify as many or
@@ -40,6 +41,7 @@ type HandlerFuncs struct {
 	OnMessageFunc            func(turn *TurnContext) (schema.Activity, error)
 	OnInvokeFunc             func(turn *TurnContext) (schema.Activity, error)
 	OnConversationUpdateFunc func(turn *TurnContext) (schema.Activity, error)
+	OnInstallationUpdateFunc func(turn *TurnContext) (schema.Activity, error)
 }
 
 // OnMessage handles a 'message' event from connector service.
@@ -66,6 +68,14 @@ func (r HandlerFuncs) OnInvoke(turn *TurnContext) (schema.Activity, error) {
 	return schema.Activity{}, errors.New("No handler found for this activity type")
 }
 
+// OnInstallationUpdate handles a 'conversationUpdate' event from connector service.
+func (r HandlerFuncs) OnInstallationUpdate(turn *TurnContext) (schema.Activity, error) {
+	if r.OnInstallationUpdateFunc != nil {
+		return r.OnInstallationUpdateFunc(turn)
+	}
+	return schema.Activity{}, errors.New("No handler found for this activity type")
+}
+
 // PrepareActivityContext routes the received Activity to respective handler function.
 // Returns the result of the handler function.
 func PrepareActivityContext(handler Handler, context *TurnContext) (schema.Activity, error) {
@@ -76,6 +86,8 @@ func PrepareActivityContext(handler Handler, context *TurnContext) (schema.Activ
 		return handler.OnInvoke(context)
 	case schema.ConversationUpdate:
 		return handler.OnConversationUpdate(context)
+	case schema.InstallationUpdate:
+		return handler.OnInstallationUpdate(context)
 	}
 	return schema.Activity{}, fmt.Errorf("Activity type %s not supported yet", context.Activity.Type)
 }
