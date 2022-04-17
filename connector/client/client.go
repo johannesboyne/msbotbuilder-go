@@ -31,10 +31,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/infracloudio/msbotbuilder-go/connector/auth"
-	"github.com/infracloudio/msbotbuilder-go/connector/cache"
-	"github.com/infracloudio/msbotbuilder-go/schema"
-	"github.com/infracloudio/msbotbuilder-go/schema/customerror"
+	"github.com/johannesboyne/msbotbuilder-go/connector/auth"
+	"github.com/johannesboyne/msbotbuilder-go/connector/cache"
+	"github.com/johannesboyne/msbotbuilder-go/schema"
+	"github.com/johannesboyne/msbotbuilder-go/schema/customerror"
 )
 
 // Client provides interface to send requests to the connector service.
@@ -164,6 +164,8 @@ func (client *ConnectorClient) getToken(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	fmt.Println("AUTH: ", u.String())
+	// @TODO: make auth test non network dependent
 	r, err := http.NewRequestWithContext(ctx, "POST", u.String(), strings.NewReader(data.Encode()))
 	if err != nil {
 		return "", err
